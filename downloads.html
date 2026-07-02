@@ -426,6 +426,9 @@
         if (input) input.focus();
       }
 
+      // GitHub Pages — no PHP, bypass gate for preview
+      if (location.hostname === 'msenlm.github.io') { unlock(); return; }
+
       // Verify PHP session on every load — authoritative check
       fetch('auth.php', { credentials: 'same-origin' })
         .then(function (r) { return r.json(); })
