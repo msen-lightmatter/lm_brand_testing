@@ -1,6 +1,25 @@
 (function () {
   'use strict';
 
+  // Expand the TOC rail on hover (matches the brand site's shared.js initTocRail —
+  // reimplemented here rather than depending on assets/js/shared.js, which this
+  // standalone page doesn't otherwise need).
+  (function initTocRail() {
+    var postTocInner = document.querySelector('.post-toc-inner');
+    var tocRail = document.getElementById('toc-rail');
+    if (!tocRail || !postTocInner) return;
+    var collapseTimer;
+    tocRail.addEventListener('mouseenter', function () {
+      clearTimeout(collapseTimer);
+      postTocInner.classList.add('toc-hover');
+    });
+    tocRail.addEventListener('mouseleave', function () {
+      collapseTimer = setTimeout(function () {
+        postTocInner.classList.remove('toc-hover');
+      }, 250);
+    });
+  })();
+
   var canvas = document.getElementById('type-canvas');   // real, native contenteditable — text kept invisible
   var preview = document.getElementById('type-preview'); // decorative mirror — shows the styled text
   var canvasWrap = document.getElementById('canvas-wrap');

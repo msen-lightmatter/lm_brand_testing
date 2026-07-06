@@ -68,7 +68,72 @@
     }
     @media (min-width: 768px)  { .container-fluid { padding-left: 48px; padding-right: 48px; } }
     @media (min-width: 1024px) { .container-fluid { padding-left: 96px; padding-right: 96px; } }
-    @media (min-width: 1280px) { .container-fluid { padding-left: 182px; padding-right: 182px; } }
+    @media (min-width: 1280px) { .container-fluid { padding-left: 220px; padding-right: 182px; } }
+
+    /* ── TOC rail (matches the brand site's shared.css) ── */
+    :root {
+      --toc-transition-duration: 0.32s;
+      --toc-easing: cubic-bezier(.16,1,.3,1);
+    }
+    .post-toc-wrap {
+      left: 16px;
+      top: calc(50vh - 36px);
+      width: 150px;
+      transition: transform var(--toc-transition-duration) var(--toc-easing);
+    }
+    @media (min-width:1280px) {
+      .post-toc-wrap { left: 24px; }
+    }
+    .post-toc-inner { transition: none; }
+    .toc-a {
+      position: relative;
+      display: flex;
+      align-items: center;
+      transition: color 0.14s ease,
+                  height var(--toc-transition-duration) var(--toc-easing),
+                  padding var(--toc-transition-duration) var(--toc-easing);
+      transform-origin: left;
+      height: var(--expanded-link-height, 22px);
+      text-decoration: none;
+    }
+    [data-level="h2"] .toc-a { padding-left: 0; font-size: 13px; line-height: 1.2; font-weight: 400; color: #000; }
+    [data-level="h3"] .toc-a { padding-left: 10px; font-size: 12px; line-height: 1.25; color: #000; }
+    .toc-a:hover, .toc-a:focus-visible { color: #FF3300; }
+    .toc-item.active .toc-a { color: #FF3300; }
+    .toc-group:has(.toc-sub-list .toc-item.active) > .toc-item .toc-a { color: #FF3300; }
+    .toc-group:has(.toc-sub-list .toc-item.active) > .toc-item .toc-a:hover,
+    .toc-group:has(.toc-sub-list .toc-item.active) > .toc-item .toc-a:focus-visible,
+    .toc-item.active .toc-a:hover,
+    .toc-item.active .toc-a:focus-visible { color: #FF3300; }
+    .toc-text {
+      transform-origin: left center;
+      will-change: transform;
+      white-space: nowrap;
+      transition: transform var(--toc-transition-duration) var(--toc-easing),
+                  opacity var(--toc-transition-duration) var(--toc-easing),
+                  color var(--toc-transition-duration) var(--toc-easing);
+    }
+    .toc-sub-list {
+      max-height: 320px;
+      opacity: 1;
+      overflow: hidden;
+      padding-top: 4px !important;
+      row-gap: 2px !important;
+      transition: max-height var(--toc-transition-duration) var(--toc-easing),
+                  opacity var(--toc-transition-duration) var(--toc-easing);
+    }
+    .toc-collapsed .toc-list { gap: 8px; }
+    .toc-collapsed [data-level="h2"] .toc-a { padding-left: 0; height: 18px; }
+    .toc-collapsed [data-level="h3"] .toc-a { padding-left: 10px; height: 16px; }
+    .toc-collapsed .toc-text { transform: scale(1, 1); opacity: 1; pointer-events: auto; }
+    .toc-collapsed .toc-sub-list { max-height: 0; opacity: 0; }
+    .toc-collapsed.toc-hover .toc-list { gap: 7px; }
+    .toc-collapsed.toc-hover .toc-a { height: 18px; }
+    .toc-collapsed.toc-hover [data-level="h2"] .toc-a { padding-left: 0; }
+    .toc-collapsed.toc-hover [data-level="h3"] .toc-a { padding-left: 10px; }
+    .toc-collapsed.toc-hover .toc-sub-list { max-height: 320px; opacity: 1; }
+    .toc-collapsed.toc-hover .toc-text { transform: scale(1, 1); opacity: 1; pointer-events: auto; }
+    .toc-collapsed:not(.toc-hover) .toc-item[data-level="h3"].active .toc-a { color: #000; }
 
     /* ── GUI form components (marketing-palette form styling, reused from the brand form system) ── */
     .gui-font { font-family: 'Object Sans', sans-serif; }
@@ -203,6 +268,191 @@
       </a>
     </div>
   </header>
+
+  <!-- ── TOC rail ──────────────────────────────────────────────────────────── -->
+  <aside id="toc-rail" class="post-toc-wrap hidden xl:block fixed -translate-y-1/2 z-40">
+    <div class="post-toc-inner toc-collapsed font-sans">
+      <ul class="toc-list flex flex-col gap-2">
+        <!-- Hero -->
+        <li class="toc-group flex flex-col">
+          <div class="toc-item" data-level="h2">
+            <a class="toc-a" href="index.html#brand-guidelines">
+              <div class="toc-text"><span class="toc-text-inner">Brand</span></div>
+            </a>
+          </div>
+        </li>
+
+        <!-- Logo Group -->
+        <li class="toc-group flex flex-col">
+          <div class="toc-item" data-level="h2">
+            <a class="toc-a" href="index.html#logos">
+              <div class="toc-text"><span class="toc-text-inner">Logos</span></div>
+            </a>
+          </div>
+          <ul class="toc-sub-list flex flex-col gap-1.5 pt-2">
+            <li class="toc-item" data-level="h3">
+              <a class="toc-a" href="index.html#logo-logomark">
+                <div class="toc-text"><span class="toc-text-inner">Logomark</span></div>
+              </a>
+            </li>
+            <li class="toc-item" data-level="h3">
+              <a class="toc-a" href="index.html#logo-wordmark">
+                <div class="toc-text"><span class="toc-text-inner">Wordmark</span></div>
+              </a>
+            </li>
+            <li class="toc-item" data-level="h3">
+              <a class="toc-a" href="index.html#logo-scale">
+                <div class="toc-text"><span class="toc-text-inner">Scale</span></div>
+              </a>
+            </li>
+            <li class="toc-item" data-level="h3">
+              <a class="toc-a" href="index.html#logo-products">
+                <div class="toc-text"><span class="toc-text-inner">Product logos</span></div>
+              </a>
+            </li>
+            <li class="toc-item" data-level="h3">
+              <a class="toc-a" href="index.html#logo-social">
+                <div class="toc-text"><span class="toc-text-inner">Social avatar</span></div>
+              </a>
+            </li>
+          </ul>
+        </li>
+
+        <!-- Color Group -->
+        <li class="toc-group flex flex-col">
+          <div class="toc-item" data-level="h2">
+            <a class="toc-a" href="index.html#color">
+              <div class="toc-text"><span class="toc-text-inner">Color</span></div>
+            </a>
+          </div>
+          <ul class="toc-sub-list flex flex-col gap-1.5 pt-2">
+            <li class="toc-item" data-level="h3">
+              <a class="toc-a" href="index.html#color-primary">
+                <div class="toc-text"><span class="toc-text-inner">Primary</span></div>
+              </a>
+            </li>
+            <li class="toc-item" data-level="h3">
+              <a class="toc-a" href="index.html#color-secondary">
+                <div class="toc-text"><span class="toc-text-inner">Secondary</span></div>
+              </a>
+            </li>
+            <li class="toc-item" data-level="h3">
+              <a class="toc-a" href="index.html#color-greys">
+                <div class="toc-text"><span class="toc-text-inner">Greys</span></div>
+              </a>
+            </li>
+            <li class="toc-item" data-level="h3">
+              <a class="toc-a" href="index.html#color-tints">
+                <div class="toc-text"><span class="toc-text-inner">Tints</span></div>
+              </a>
+            </li>
+          </ul>
+        </li>
+
+        <!-- Type Group -->
+        <li class="toc-group flex flex-col">
+          <div class="toc-item" data-level="h2">
+            <a class="toc-a" href="index.html#type">
+              <div class="toc-text"><span class="toc-text-inner">Type</span></div>
+            </a>
+          </div>
+          <ul class="toc-sub-list flex flex-col gap-1.5 pt-2">
+            <li class="toc-item" data-level="h3">
+              <a class="toc-a" href="index.html#type-display">
+                <div class="toc-text"><span class="toc-text-inner">Primary</span></div>
+              </a>
+            </li>
+            <li class="toc-item" data-level="h3">
+              <a class="toc-a" href="index.html#type-text">
+                <div class="toc-text"><span class="toc-text-inner">Secondary</span></div>
+              </a>
+            </li>
+            <li class="toc-item" data-level="h3">
+              <a class="toc-a" href="index.html#type-styles">
+                <div class="toc-text"><span class="toc-text-inner">Styles</span></div>
+              </a>
+            </li>
+          </ul>
+        </li>
+
+        <!-- Icons Group -->
+        <li class="toc-group flex flex-col">
+          <div class="toc-item" data-level="h2">
+            <a class="toc-a" href="index.html#icons">
+              <div class="toc-text"><span class="toc-text-inner">Icons</span></div>
+            </a>
+          </div>
+        </li>
+
+        <!-- Imagery Group -->
+        <li class="toc-group flex flex-col">
+          <div class="toc-item" data-level="h2">
+            <a class="toc-a" href="index.html#imagery">
+              <div class="toc-text"><span class="toc-text-inner">Imagery</span></div>
+            </a>
+          </div>
+        </li>
+
+        <!-- Voice Group -->
+        <li class="toc-group flex flex-col">
+          <div class="toc-item" data-level="h2">
+            <a class="toc-a" href="index.html#voice">
+              <div class="toc-text"><span class="toc-text-inner">Voice</span></div>
+            </a>
+          </div>
+        </li>
+
+        <!-- Trademarks Group -->
+        <li class="toc-group flex flex-col">
+          <div class="toc-item" data-level="h2">
+            <a class="toc-a" href="index.html#trademarks">
+              <div class="toc-text"><span class="toc-text-inner">Trademarks</span></div>
+            </a>
+          </div>
+          <ul class="toc-sub-list flex flex-col gap-1.5 pt-2">
+            <li class="toc-item" data-level="h3">
+              <a class="toc-a" href="index.html#trademark-list">
+                <div class="toc-text"><span class="toc-text-inner">Mark list</span></div>
+              </a>
+            </li>
+            <li class="toc-item" data-level="h3">
+              <a class="toc-a" href="index.html#trademark-usage">
+                <div class="toc-text"><span class="toc-text-inner">Usage</span></div>
+              </a>
+            </li>
+            <li class="toc-item" data-level="h3">
+              <a class="toc-a" href="index.html#trademark-reference">
+                <div class="toc-text"><span class="toc-text-inner">Reference</span></div>
+              </a>
+            </li>
+            <li class="toc-item" data-level="h3">
+              <a class="toc-a" href="index.html#trademark-attribution">
+                <div class="toc-text"><span class="toc-text-inner">Attribution</span></div>
+              </a>
+            </li>
+          </ul>
+        </li>
+
+        <!-- Downloads -->
+        <li class="toc-group flex flex-col mt-2">
+          <div class="toc-item" data-level="h2">
+            <a class="toc-a" href="downloads.html">
+              <div class="toc-text"><span class="toc-text-inner">Downloads</span></div>
+            </a>
+          </div>
+        </li>
+
+        <!-- Type tool -->
+        <li class="toc-group flex flex-col">
+          <div class="toc-item active" data-level="h2">
+            <a class="toc-a" href="inference-sans-type-tool.html">
+              <div class="toc-text"><span class="toc-text-inner">Type tool</span></div>
+            </a>
+          </div>
+        </li>
+      </ul>
+    </div>
+  </aside>
 
   <main class="flex-1">
     <div class="container-fluid py-12 md:py-16 flex flex-col gap-10">
