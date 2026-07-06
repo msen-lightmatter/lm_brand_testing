@@ -20,6 +20,38 @@
     });
   })();
 
+  // Hamburger dropdown for the top nav (matches the brand site's shared.js initMobileMenu —
+  // reimplemented here for the same reason as initTocRail above).
+  (function initMobileMenu() {
+    var btn = document.getElementById('menu-toggle');
+    var menu = document.getElementById('mobile-menu');
+    if (!btn || !menu) return;
+    var iconOpen = btn.querySelector('.icon-open');
+    var iconClose = btn.querySelector('.icon-close');
+    function setOpen(open) {
+      menu.classList.toggle('is-open', open);
+      btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+      btn.setAttribute('aria-label', open ? 'Close menu' : 'Open menu');
+      menu.setAttribute('aria-hidden', open ? 'false' : 'true');
+      iconOpen.classList.toggle('hidden', open);
+      iconClose.classList.toggle('hidden', !open);
+    }
+    btn.addEventListener('click', function () {
+      setOpen(!menu.classList.contains('is-open'));
+    });
+    menu.querySelectorAll('a').forEach(function (a) {
+      a.addEventListener('click', function () { setOpen(false); });
+    });
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape') setOpen(false);
+    });
+    document.addEventListener('click', function (e) {
+      if (!menu.classList.contains('is-open')) return;
+      if (menu.contains(e.target) || btn.contains(e.target)) return;
+      setOpen(false);
+    });
+  })();
+
   var canvas = document.getElementById('type-canvas');   // real, native contenteditable — text kept invisible
   var preview = document.getElementById('type-preview'); // decorative mirror — shows the styled text
   var canvasWrap = document.getElementById('canvas-wrap');

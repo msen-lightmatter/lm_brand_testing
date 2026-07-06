@@ -27,6 +27,12 @@
           fontFamily: {
             sans: ['"Object Sans"', '"Inter"', '"Helvetica Neue"', 'Arial', 'sans-serif'],
           },
+          height: {
+            header: '75px',
+          },
+          spacing: {
+            header: '75px',
+          },
         },
       },
     }
@@ -69,6 +75,17 @@
     @media (min-width: 768px)  { .container-fluid { padding-left: 48px; padding-right: 48px; } }
     @media (min-width: 1024px) { .container-fluid { padding-left: 96px; padding-right: 96px; } }
     @media (min-width: 1280px) { .container-fluid { padding-left: 220px; padding-right: 182px; } }
+
+    /* ── Nav (matches the brand site's shared.css) ── */
+    .nav-link { font-size:13px; letter-spacing:0.02em; line-height:1; color:#000; text-decoration:none; transition:color .15s; }
+    .nav-link:hover { color:#FF3300; }
+    .nav-link.active { color:#FF3300; }
+
+    .mobile-menu { opacity:0; transform:translateY(-8px); pointer-events:none; transition:opacity .2s ease, transform .2s ease; }
+    .mobile-menu.is-open { opacity:1; transform:translateY(0); pointer-events:auto; }
+    .nav-link-mobile { display:block; padding:13px 0; font-size:18px; color:#000; text-decoration:none; border-top:1px solid #EEEEEE; transition:color .15s; }
+    .nav-link-mobile:first-child { border-top:0; }
+    .nav-link-mobile:hover, .nav-link-mobile.active { color:#FF3300; }
 
     /* ── TOC rail (matches the brand site's shared.css) ── */
     :root {
@@ -261,11 +278,41 @@
   </div>
 
   <!-- ── Header ─────────────────────────────────────────────────────────── -->
-  <header class="border-b border-gray-300">
-    <div class="container-fluid py-6 flex items-center">
-      <a href="https://lightmatter.co/brand/">
-        <img src="assets/images/logo-lm.svg" alt="Lightmatter" width="48" height="24">
-      </a>
+  <header class="fixed left-0 right-0 top-0 z-50 h-header border-b border-gray-300 bg-white/95 backdrop-blur">
+    <div class="container-fluid h-full">
+      <div class="h-full flex items-center justify-between gap-6">
+        <a class="flex items-baseline gap-5 shrink-0" href="https://lightmatter.co/brand/">
+          <img width="48" height="24" src="assets/images/logo-lm.svg" alt="Lightmatter">
+        </a>
+        <nav class="hidden md:flex xl:hidden items-center gap-4" aria-label="Sections">
+          <a class="nav-link" href="index.html#logos">Logos</a>
+          <a class="nav-link" href="index.html#color">Color</a>
+          <a class="nav-link" href="index.html#type">Type</a>
+          <a class="nav-link" href="index.html#icons">Icons</a>
+          <a class="nav-link" href="index.html#imagery">Imagery</a>
+          <a class="nav-link" href="index.html#voice">Voice</a>
+          <a class="nav-link" href="index.html#trademarks">Trademarks</a>
+        </nav>
+        <div class="flex items-center gap-3 shrink-0">
+          <button id="menu-toggle" type="button" class="xl:hidden -m-2 p-2 text-gray-900 hover:text-red-500 transition-colors" aria-label="Open menu" aria-expanded="false" aria-controls="mobile-menu">
+            <svg class="icon-open w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
+            <svg class="icon-close hidden w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M5 5l14 14M19 5L5 19"/></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+    <div id="mobile-menu" class="mobile-menu xl:hidden absolute left-0 right-0 top-full border-b border-gray-300 bg-white/95 backdrop-blur" aria-hidden="true">
+      <nav class="container-fluid flex flex-col py-2" aria-label="Sections">
+        <a class="nav-link-mobile" href="index.html#logos">Logos</a>
+        <a class="nav-link-mobile" href="index.html#color">Color</a>
+        <a class="nav-link-mobile" href="index.html#type">Type</a>
+        <a class="nav-link-mobile" href="index.html#icons">Icons</a>
+        <a class="nav-link-mobile" href="index.html#imagery">Imagery</a>
+        <a class="nav-link-mobile" href="index.html#voice">Voice</a>
+        <a class="nav-link-mobile" href="index.html#trademarks">Trademarks</a>
+        <a class="nav-link-mobile" href="downloads.html">Downloads</a>
+        <a class="nav-link-mobile active" href="inference-sans-type-tool.html">Type tool</a>
+      </nav>
     </div>
   </header>
 
@@ -454,7 +501,7 @@
     </div>
   </aside>
 
-  <main class="flex-1">
+  <main class="flex-1 pt-header">
     <div class="container-fluid py-12 md:py-16 flex flex-col gap-10">
 
       <div class="flex flex-col gap-2 max-w-[950px]">
