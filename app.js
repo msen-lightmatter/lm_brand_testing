@@ -1,6 +1,17 @@
 (function () {
   'use strict';
 
+  // Matches the brand site's shared.js toggleDarkMode — reimplemented here
+  // for the same reason as initTocRail/initMobileMenu below.
+  window.toggleDarkMode = function () {
+    var isDark = document.documentElement.classList.toggle('dark');
+    document.querySelectorAll('.dark-toggle-moon').forEach(function (el) { el.classList.toggle('hidden', isDark); });
+    document.querySelectorAll('.dark-toggle-sun').forEach(function (el) { el.classList.toggle('hidden', !isDark); });
+    document.querySelectorAll('.dark-toggle-btn').forEach(function (el) {
+      el.setAttribute('aria-label', isDark ? 'Switch to light mode' : 'Switch to dark mode');
+    });
+  };
+
   // Expand the TOC rail on hover (matches the brand site's shared.js initTocRail —
   // reimplemented here rather than depending on assets/js/shared.js, which this
   // standalone page doesn't otherwise need).
