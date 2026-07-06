@@ -284,27 +284,31 @@
     return keepers;
   }
 
-  // Grey out (and disable) any V1/V2/V3 option that wouldn't change a single letter in the
-  // current phrase. "Random" and "None" have no such dependency and stay enabled.
+  // Grey out (and disable) any option that wouldn't change a single letter in the current
+  // phrase: V1/V2/V3 need at least that many eligible letters in some word; "Random" just
+  // needs at least one. "None" has no such dependency and always stays enabled.
+  function setOptionAvailability(btn, available) {
+    btn.disabled = !available;
+    btn.classList.toggle('opacity-40', !available);
+    btn.style.cursor = available ? '' : 'not-allowed';
+    // If the currently active mode just became unavailable, fall back to "None" rather than
+    // leaving a disabled button stuck showing as selected. Updated directly (not via .click())
+    // since this runs inside onTextChanged() itself, which will pick up the corrected
+    // state.altMode when it reaches computeKeepers() right after this returns.
+    if (!available && btn.getAttribute('aria-pressed') === 'true') {
+      btn.setAttribute('aria-pressed', 'false');
+      document.querySelector('#altmode-buttons .seg-btn[data-mode="none"]').setAttribute('aria-pressed', 'true');
+      state.altMode = 'none';
+    }
+  }
+
   function updateOptionAvailability(lines) {
     var words = getQualifyingWords(lines);
     var maxCandidates = words.reduce(function (max, w) { return Math.max(max, w.candidates.length); }, 0);
     [1, 2, 3].forEach(function (n) {
-      var btn = document.getElementById('alt-' + n);
-      var available = n <= maxCandidates;
-      btn.disabled = !available;
-      btn.classList.toggle('opacity-40', !available);
-      btn.style.cursor = available ? '' : 'not-allowed';
-      // If the currently active mode just became unavailable, fall back to "None" rather
-      // than leaving a disabled button stuck showing as selected. Updated directly (not via
-      // .click()) since this runs inside onTextChanged() itself, which will pick up the
-      // corrected state.altMode when it reaches computeKeepers() right after this returns.
-      if (!available && btn.getAttribute('aria-pressed') === 'true') {
-        btn.setAttribute('aria-pressed', 'false');
-        document.querySelector('#altmode-buttons .seg-btn[data-mode="none"]').setAttribute('aria-pressed', 'true');
-        state.altMode = 'none';
-      }
+      setOptionAvailability(document.getElementById('alt-' + n), n <= maxCandidates);
     });
+    setOptionAvailability(document.querySelector('#altmode-buttons .seg-btn[data-mode="random"]'), maxCandidates > 0);
   }
 
   // ── Decorative preview rendering (span-wraps only the chosen keeper letters) ──
@@ -516,7 +520,7 @@
     var colorName = COLOR_NAMES[state.color] || slugify(state.color);
     var presetBtn = document.querySelector('#preset-buttons .seg-btn[aria-pressed="true"]');
     var presetName = (presetBtn && PRESET_NAMES[presetBtn.dataset.preset]) || 'custom';
-    var parts = ['itt', slugify(getLines().join(' ')), colorName, presetName];
+    var parts = ['itt', slugify(getLines().join(' ')), colorName, state.bg, presetName];
     var name = parts.join('-');
     if (includeScale) name += '@' + state.scale + 'x';
     return name + '.' + ext;
