@@ -280,6 +280,15 @@
             </a>
           </div>
         </li>
+
+        <!-- Type tool -->
+        <li class="toc-group flex flex-col">
+          <div class="toc-item" data-level="h2">
+            <a class="toc-a" href="inference-sans-type-tool.html">
+              <div class="toc-text"><span class="toc-text-inner">Type tool</span></div>
+            </a>
+          </div>
+        </li>
       </ul>
       <button onclick="toggleDarkMode()"
               class="dark-toggle-btn mt-5 flex items-center gap-1.5 hover:text-red-500 transition-colors"
@@ -425,9 +434,6 @@
         document.documentElement.classList.remove('lm-authed');
         if (input) input.focus();
       }
-
-      // GitHub Pages — no PHP, bypass gate for preview
-      if (location.hostname === 'msenlm.github.io') { unlock(); return; }
 
       // Verify PHP session on every load — authoritative check
       fetch('auth.php', { credentials: 'same-origin' })

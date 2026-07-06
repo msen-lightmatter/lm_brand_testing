@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html class="overflow-x-hidden" lang="en-US">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lightmatter Inference Sans Type Tool</title>
+  <meta name="robots" content="noindex, nofollow">
+
+  <!-- Tailwind — vendored browser build, no CDN dependency -->
+  <script src="assets/tailwind.js"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            gray: {
+              900: '#000000',
+              700: '#333333',
+              600: '#333333',
+              500: '#757575',
+              400: '#BBBBBB',
+              300: '#D4D4D4',
+              200: '#EEEEEE',
+              100: '#F9F9F9',
+            },
+          },
+          fontFamily: {
+            sans: ['"Object Sans"', '"Inter"', '"Helvetica Neue"', 'Arial', 'sans-serif'],
+          },
+        },
+      },
+    }
+  </script>
+
+  <style>
+    @font-face {
+      font-family: 'Inference Sans';
+      src: url('assets/fonts/Inference_Sans.woff2') format('woff2');
+      font-weight: 400;
+      font-style: normal;
+      font-display: block;
+    }
+    @font-face {
+      font-family: 'Object Sans';
+      src: url('assets/fonts/ObjectSans-Regular.woff2') format('woff2');
+      font-weight: 400;
+      font-style: normal;
+      font-display: swap;
+    }
+    @font-face {
+      font-family: 'Object Sans';
+      src: url('assets/fonts/ObjectSans-Medium.woff2') format('woff2');
+      font-weight: 500;
+      font-style: normal;
+      font-display: swap;
+    }
+
+    html { scroll-behavior: smooth; }
+    body { background:#fff; color:#000; }
+
+    .container-fluid {
+      width: 100%;
+      max-width: 1440px;
+      margin-left: auto;
+      margin-right: auto;
+      padding-left: 32px;
+      padding-right: 32px;
+    }
+    @media (min-width: 768px)  { .container-fluid { padding-left: 48px; padding-right: 48px; } }
+    @media (min-width: 1024px) { .container-fluid { padding-left: 96px; padding-right: 96px; } }
+    @media (min-width: 1280px) { .container-fluid { padding-left: 182px; padding-right: 182px; } }
+
+    /* ── GUI form components (marketing-palette form styling, reused from the brand form system) ── */
+    .gui-font { font-family: 'Object Sans', sans-serif; }
+    .gui-label { font-family: 'Object Sans', sans-serif; font-weight: 500; font-size: 14px; line-height: 20px; color: #000; }
+    .gui-hint { color: #757575; }
+
+    /* ── Color swatch buttons ── */
+    .swatch {
+      width: 32px; height: 32px; border-radius: 0; cursor: pointer;
+      border: 1px solid #d4d4d4;
+      position: relative;
+      transition: border-color .15s ease, box-shadow .15s ease;
+    }
+    .swatch[aria-pressed="true"] { box-shadow: 0 0 0 2px #fff, 0 0 0 4px #0033ff; }
+
+    /* ── Type canvas ──────────────────────────────────────────────────────
+       Two layers stacked in the same grid cell: #type-canvas is the REAL
+       contenteditable (kept fully native — we never touch its DOM — with
+       its text made invisible), and #type-preview is a decorative mirror
+       underneath that shows the styled/alt-letterform text. Rewriting the
+       editable node's own DOM on every keystroke caused caret bugs (typing
+       on a fresh empty line after Enter could land before the line break)
+       that this layering sidesteps entirely. ── */
+    #canvas-wrap {
+      border: 1px solid #d4d4d4;
+      min-height: 320px;
+      display: grid;
+      padding: 40px 32px;
+      overflow: hidden;
+    }
+    #type-canvas, #type-preview {
+      grid-area: 1 / 1;
+      font-family: 'Inference Sans', sans-serif;
+      font-weight: 400;
+      line-height: 1.05;
+      letter-spacing: -0.02em;
+      text-align: center;
+      white-space: pre-wrap;
+      word-break: break-word;
+      width: 100%;
+      max-width: 100%;
+      align-self: center;
+      justify-self: center;
+    }
+    #type-canvas {
+      outline: none;
+      color: transparent;
+      caret-color: #000000;
+      background: transparent;
+      position: relative;
+      z-index: 2;
+    }
+    #type-preview {
+      pointer-events: none;
+      z-index: 1;
+      color: #000000;
+    }
+    .stylistic-alt { font-feature-settings: 'salt' 1; }
+
+    .brand-link { color: #333333; text-decoration: none; transition: color .15s ease; }
+    .brand-link:hover { color: #FF3300; }
+
+    .btn-outline {
+      display: inline-flex; align-items: center; justify-content: center;
+      border: 1px solid #0033ff; background: transparent; color: #0033ff;
+      font-family: 'Object Sans', sans-serif; font-weight: 500; font-size: 16px;
+      letter-spacing: 0.2px; line-height: 1.45;
+      padding: 14px 24px;
+      transition: background-color .15s ease, color .15s ease;
+      cursor: pointer;
+    }
+    .btn-outline:hover:not(:disabled) { background: #0033ff; color: #fff; }
+    .btn-outline:disabled { border-color: #d4d4d4; color: #bbbbbb; cursor: not-allowed; }
+
+    .seg-btn {
+      font-family: 'Object Sans', sans-serif; font-size: 14px; font-weight: 500;
+      padding: 8px 14px; border: 1px solid #d4d4d4; background: #fff; color: #333;
+      cursor: pointer; transition: background-color .15s ease, color .15s ease;
+    }
+    .seg-btn[aria-pressed="true"] { background: #0033ff; border-color: #0033ff; color: #fff; }
+    .seg-btn:not(:last-child) { border-right: none; }
+
+    /* Password gate — matches the brand site's shared gate (downloads.html) */
+    #pw-gate { position:fixed; inset:0; z-index:100; display:flex; align-items:center; justify-content:center; background:#fff; padding:24px; }
+    html.dark #pw-gate { background:#000; }
+    html.lm-authed #pw-gate, #pw-gate.is-hidden { display:none; }
+    #pw-input {
+      width:100%;
+      height:44px;
+      background-color:#f9f9f9;
+      border:1px solid #d4d4d4;
+      border-radius:0;
+      padding:10px 14px;
+      font-family:'DM Sans','Object Sans',sans-serif;
+      font-size:16px;
+      line-height:24px;
+      color:#000;
+      outline:none;
+      transition:border-color .15s ease, box-shadow .15s ease;
+    }
+    #pw-input::placeholder { color:#757575; transition:color .1s ease; }
+    #pw-input:focus::placeholder { color:transparent; }
+    #pw-input:focus { border-color:#0033ff; box-shadow:0 0 0 3px rgba(0,51,255,0.12); }
+    html.dark #pw-input { background-color:#1a1a1a; border-color:#333; color:#e5e5e5; }
+    html.dark #pw-input::placeholder { color:#8a8a8a; }
+    html.dark #pw-input:focus::placeholder { color:transparent; }
+  </style>
+
+  <!-- Skip the gate if already unlocked this session (runs before paint to avoid a flash) -->
+  <script>try{if(sessionStorage.getItem('lm-downloads-auth')==='1')document.documentElement.classList.add('lm-authed');}catch(e){}</script>
+</head>
+
+<body class="antialiased flex flex-col min-h-screen font-sans bg-white text-gray-900">
+
+  <!-- ── Password gate ───────────────────────────────────────────────────── -->
+  <div id="pw-gate">
+    <div class="w-full max-w-[360px] flex flex-col gap-6">
+      <p class="text-sm leading-[1.5] text-gray-900">Enter password for access</p>
+      <form id="pw-form" class="flex flex-col gap-3" autocomplete="off">
+        <input id="pw-input" type="password" autocomplete="current-password" aria-label="Password" placeholder="Password" />
+        <button type="submit" class="btn-outline self-start">Enter</button>
+        <p id="pw-error" class="text-sm hidden" style="color:#FF3300;">Incorrect password. Please try again.</p>
+      </form>
+    </div>
+  </div>
+
+  <!-- ── Header ─────────────────────────────────────────────────────────── -->
+  <header class="border-b border-gray-300">
+    <div class="container-fluid py-6 flex items-center">
+      <a href="https://lightmatter.co/brand/">
+        <img src="assets/images/logo-lm.svg" alt="Lightmatter" width="48" height="24">
+      </a>
+    </div>
+  </header>
+
+  <main class="flex-1">
+    <div class="container-fluid py-12 md:py-16 flex flex-col gap-10">
+
+      <div class="flex flex-col gap-2 max-w-[950px]">
+        <h1 class="text-2xl font-sans font-medium">Inference Sans Type Tool</h1>
+        <p class="text-base text-gray-600">
+          Download a short phrase in our custom font as a graphic. For usage see our <a href="https://lightmatter.co/brand/#type" class="brand-link" target="_blank" rel="noopener">Typography Brand Guidelines</a>.
+        </p>
+      </div>
+
+      <div class="flex flex-col gap-7 gui-font">
+        <div id="canvas-wrap">
+          <div id="type-canvas"
+               contenteditable="true"
+               role="textbox"
+               aria-multiline="true"
+               spellcheck="false"
+               style="font-size: 64px;"
+          >A GIANT LEAP</div>
+          <div id="type-preview" aria-hidden="true" style="font-size: 64px;"></div>
+        </div>
+
+        <div class="grid grid-cols-3 gap-x-10 gap-y-7">
+
+            <!-- Left column -->
+            <div class="flex flex-col gap-7">
+
+              <!-- Text color -->
+              <div class="flex flex-col gap-2">
+                <label class="gui-label">Text</label>
+                <div class="flex gap-2 flex-wrap" id="text-color-swatches">
+                  <button class="swatch" style="background:#000000" data-color="#000000" aria-pressed="true" title="Black" aria-label="Black"></button>
+                  <button class="swatch" style="background:#ffffff" data-color="#ffffff" aria-pressed="false" title="White" aria-label="White"></button>
+                  <button class="swatch" style="background:#FF3300" data-color="#FF3300" aria-pressed="false" title="Red" aria-label="Red"></button>
+                </div>
+              </div>
+
+              <!-- Background -->
+              <div class="flex flex-col gap-2">
+                <label class="gui-label">Background</label>
+                <div class="flex gap-0" id="bg-buttons">
+                  <button class="seg-btn" data-bg="white" aria-pressed="true">White</button>
+                  <button class="seg-btn" data-bg="black" aria-pressed="false">Black</button>
+                  <button class="seg-btn" data-bg="transparent" aria-pressed="false">Transparent</button>
+                </div>
+              </div>
+
+              <!-- Alternate letterforms -->
+              <div class="flex flex-col gap-2">
+                <label class="gui-label">Alternate letterforms</label>
+                <div class="flex gap-0" id="altmode-buttons">
+                  <button class="seg-btn" data-mode="none" aria-pressed="true">None</button>
+                  <button class="seg-btn" data-mode="1" id="alt-1">V1</button>
+                  <button class="seg-btn" data-mode="2" id="alt-2">V2</button>
+                  <button class="seg-btn" data-mode="3" id="alt-3">V3</button>
+                  <button class="seg-btn" data-mode="random">Random</button>
+                </div>
+              </div>
+
+            </div>
+
+            <!-- Right column -->
+            <div class="flex flex-col gap-7">
+
+              <!-- Size preset -->
+              <div class="flex flex-col gap-2">
+                <label class="gui-label">Styles</label>
+                <div class="flex gap-0" id="preset-buttons">
+                  <button class="seg-btn" data-preset="display1" aria-pressed="true">D1</button>
+                  <button class="seg-btn" data-preset="display2">D2</button>
+                  <button class="seg-btn" data-preset="display3">D3</button>
+                  <button class="seg-btn" data-preset="display4">D4</button>
+                  <button class="seg-btn" data-preset="custom">Custom</button>
+                </div>
+              </div>
+
+              <!-- Size -->
+              <div class="flex flex-col gap-2">
+                <label class="gui-label" for="size-slider">Size <span id="size-value" class="gui-hint font-normal">119px</span></label>
+                <input type="range" id="size-slider" min="61" max="119" value="119" class="w-full">
+              </div>
+
+              <!-- Letter spacing -->
+              <div class="flex flex-col gap-2">
+                <label class="gui-label" for="tracking-slider">Letter spacing <span id="tracking-value" class="gui-hint font-normal">-4%</span></label>
+                <input type="range" id="tracking-slider" min="-0.04" max="0" step="0.005" value="-0.04" class="w-full">
+              </div>
+
+              <!-- Line spacing -->
+              <div class="flex flex-col gap-2">
+                <label class="gui-label" for="leading-slider">Line spacing <span id="leading-value" class="gui-hint font-normal">100%</span></label>
+                <input type="range" id="leading-slider" min="1" max="1.4" step="0.01" value="1" class="w-full">
+              </div>
+
+              <button id="reset-controls" type="button" class="gui-hint text-xs self-start hover:text-gray-900 transition-colors">Reset controls</button>
+
+            </div>
+
+            <!-- Export column -->
+            <div class="flex flex-col gap-7">
+
+              <!-- PNG export scale -->
+              <div class="flex flex-col gap-2">
+                <label class="gui-label">PNG export scale</label>
+                <div class="flex gap-0" id="scale-buttons">
+                  <button class="seg-btn" data-scale="1" aria-pressed="false">1x</button>
+                  <button class="seg-btn" data-scale="2" aria-pressed="true">2x</button>
+                  <button class="seg-btn" data-scale="3" aria-pressed="false">3x</button>
+                  <button class="seg-btn" data-scale="4" aria-pressed="false">4x</button>
+                </div>
+              </div>
+
+              <!-- Downloads -->
+              <div class="flex flex-col gap-3 pt-2">
+                <button id="download-png" class="btn-outline" disabled>Download PNG</button>
+                <button id="download-svg" class="btn-outline" disabled>Download SVG</button>
+                <p id="export-status" class="gui-hint text-xs" role="status" hidden></p>
+              </div>
+
+            </div>
+
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="border-t border-gray-300">
+    <div class="container-fluid py-6">
+      <p class="text-xs gui-hint">For internal use only. Do not share without permission.</p>
+    </div>
+  </footer>
+
+  <script src="assets/js/opentype.min.js"></script>
+  <script src="assets/fonts/inference-sans-ttf-base64.js"></script>
+  <script src="app.js"></script>
+
+  <script>
+    // ── Password gate (same gate as downloads.html) ───────────────────────
+    (function () {
+      var KEY  = 'lm-downloads-auth';
+      var gate  = document.getElementById('pw-gate');
+      var form  = document.getElementById('pw-form');
+      var input = document.getElementById('pw-input');
+      var error = document.getElementById('pw-error');
+      if (!gate || !form) return;
+
+      function unlock() {
+        gate.classList.add('is-hidden');
+        document.documentElement.classList.add('lm-authed');
+      }
+
+      function lock() {
+        try { sessionStorage.removeItem(KEY); } catch (e) {}
+        gate.classList.remove('is-hidden');
+        document.documentElement.classList.remove('lm-authed');
+        if (input) input.focus();
+      }
+
+      // GitHub Pages — no PHP, bypass gate for preview
+      if (location.hostname === 'msenlm.github.io') { unlock(); return; }
+
+      // Verify PHP session on every load — authoritative check
+      fetch('auth.php', { credentials: 'same-origin' })
+        .then(function (r) { return r.json(); })
+        .then(function (d) { if (d.ok) { unlock(); } else { lock(); } })
+        .catch(function () { if (input) input.focus(); });
+
+      form.addEventListener('submit', function (e) {
+        e.preventDefault();
+        var btn = form.querySelector('button[type="submit"]');
+        if (btn) btn.disabled = true;
+
+        fetch('auth.php', {
+          method: 'POST',
+          credentials: 'same-origin',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ password: input.value })
+        })
+        .then(function (r) {
+          if (r.ok) {
+            try { sessionStorage.setItem(KEY, '1'); } catch (e) {}
+            error.classList.add('hidden');
+            unlock();
+          } else {
+            error.classList.remove('hidden');
+            input.value = '';
+            input.focus();
+          }
+          if (btn) btn.disabled = false;
+        })
+        .catch(function () {
+          error.classList.remove('hidden');
+          input.value = '';
+          input.focus();
+          if (btn) btn.disabled = false;
+        });
+      });
+    })();
+  </script>
+</body>
+</html>
