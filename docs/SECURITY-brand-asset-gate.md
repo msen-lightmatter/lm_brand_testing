@@ -61,13 +61,23 @@ PII.)
 1. **Code — done (2026-07-08).** Gated bundles relocated to `protected/`
    (`protected/logos/`, `protected/fonts/`, `protected/documents/`) and
    `download.php`'s allowlist repointed there, so `download.php` is the only
-   in-app path to them. `index.html`'s brand-guidelines PDF link was also
-   changed from a direct file link to `download.php?f=lm-brand-guidelines.pdf&mode=view`,
-   so it now requires the password gate like the rest of the collateral.
-   `protected/.htaccess` (`Require all denied`) was added as defense-in-depth
-   for any Apache host, though it does nothing on the current nginx prod host.
-   **This only takes effect once the updated files are uploaded via FTP** —
-   there is no CI/CD deploy from this repo.
+   in-app path to them. `protected/.htaccess` (`Require all denied`) was added
+   as defense-in-depth for any Apache host, though it does nothing on the
+   current nginx prod host. **This only takes effect once the updated files
+   are uploaded via FTP** — there is no CI/CD deploy from this repo.
+
+   `index.html`'s brand-guidelines PDF link was first changed to point
+   directly at `download.php?f=lm-brand-guidelines.pdf&mode=view` so it would
+   require the gate too — **this broke the link**: `index.html` has no
+   password-gate UI at all (only `downloads.html` and
+   `inference-sans-type-tool.html` do), and `downloads.html`'s gate didn't list
+   the PDF either, so there was no page with both a login form and the file. A
+   visitor clicking it got a 403 with no way to authenticate. Fixed
+   (2026-07-08) by adding a "Brand guidelines" line item to `downloads.html`
+   (`id="brand-guidelines"`) and pointing `index.html`'s link at
+   `downloads.html#brand-guidelines` instead of the file directly. Lesson: any
+   future "gate this" change needs the target page to actually have a login
+   path — check before repointing a link at `download.php`.
 2. **Production nginx — NOT yet deployed, required, and FTP cannot do this.**
    The rule lives in `deploy/nginx-brand.conf` in this repo, but that file must
    be manually copied into the actual nginx config path on the server (e.g.
