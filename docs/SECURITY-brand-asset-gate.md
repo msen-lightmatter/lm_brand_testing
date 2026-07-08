@@ -103,7 +103,15 @@ curl -I https://lightmatter.co/brand/assets/logos/lm-product-logos.zip      # ex
 - `assets/icons/*.svg` (source for the on-the-fly `lightmatter-icons.zip`) are
   also directly reachable. Left as-is for now — display icons, lower
   sensitivity. Gate them too if brand icons are considered restricted.
-- The `msenlm.github.io` static mirror has no PHP, so nothing can gate assets
-  there; the type-tool page explicitly bypasses the overlay on that host. If any
-  gated asset is committed to the repo backing a **public** Pages site, it is
-  public there regardless. Keep gated bundles out of any public mirror.
+- ~~The `msenlm.github.io` static mirror has no PHP...~~ **Resolved (2026-07-08):**
+  that mirror no longer exists (404, no matching GitHub user/repo) and the
+  hostname-based gate bypass for it in `inference-sans-type-tool.html` has been
+  removed.
+- This repo also has GitHub Pages enabled directly
+  (`lightmatter-ai/tml2jas3w`, builds from `main`/root) — confirmed **private**
+  (`x-pages-private: 1`, redirects to GitHub SSO), so it is not a public leak of
+  `protected/`. But it does mean the gated bundles are pushed to a Pages build on
+  every `main` push; if that repo or its Pages visibility is ever made public,
+  everything in `protected/` becomes publicly downloadable with no PHP gate at
+  all (GitHub Pages doesn't run PHP). Worth deciding whether gated bundles
+  should be committed to this repo at all, vs. `.gitignore`d and FTP-only.
