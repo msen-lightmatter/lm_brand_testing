@@ -132,18 +132,12 @@ curl -I https://lightmatter.co/brand/assets/logos/lm-product-logos.zip      # ex
 
 ## Open items / lower priority
 
-- **Revisited (2026-07-08):** briefly moved the `lightmatter-icons.zip` source
-  to a duplicate `protected/icons/`, then reverted — decided not worth the
-  two-directories-in-sync maintenance cost. The zip endpoint already requires
-  `$_SESSION['brand_authed']` (same check as everything else in
-  `download.php`), so the "must be logged in for the bundle" gate was never
-  actually broken. Relocating the source directory only hid where the zip
-  *reads from*; it didn't reduce exposure, since the same 37 icons are already
-  fully public individually (`assets/icons/*.svg`, displayed and downloadable
-  from `index.html` by design) and duplicated a second time as inline SVG
-  markup in `assets/icon-svg-data.js`. Unlike the logos/fonts/documents
-  bundles, icons have no confidentiality to protect — `assets/icons/` remains
-  the single source for both the page and the zip.
+- **Resolved (2026-07-08):** icons need no separate protection. They're
+  already fully public by design (`assets/icons/*.svg`, displayed and
+  individually downloadable from `index.html`, plus duplicated as inline SVG
+  in `assets/icon-svg-data.js`), and `lightmatter-icons.zip` already requires
+  a valid session like everything else in `download.php`. `assets/icons/`
+  remains the single source for both the page and the zip.
 - ~~The `msenlm.github.io` static mirror has no PHP...~~ **Resolved (2026-07-08):**
   that mirror no longer exists (404, no matching GitHub user/repo) and the
   hostname-based gate bypass for it in `inference-sans-type-tool.html` has been
