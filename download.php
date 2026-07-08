@@ -33,9 +33,12 @@ $allowed = [
 
 $f = $_GET['f'] ?? '';
 
-// Icon bundle — zip assets/icons/ on the fly so adding an SVG is enough
+// Icon bundle — zip protected/icons/ on the fly so adding an SVG is enough.
+// Individual icons are intentionally still public at assets/icons/ (displayed
+// and individually downloadable from index.html) — only the convenience
+// all-at-once zip is gated. Keep both directories in sync when icons change.
 if ($f === 'lightmatter-icons.zip') {
-    $icons_dir = __DIR__ . '/assets/icons';
+    $icons_dir = __DIR__ . '/protected/icons';
     $svgs = glob($icons_dir . '/*.svg');
     if (!$svgs) {
         http_response_code(404);

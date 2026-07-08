@@ -100,9 +100,13 @@ curl -I https://lightmatter.co/brand/assets/logos/lm-product-logos.zip      # ex
 
 ## Open items / lower priority
 
-- `assets/icons/*.svg` (source for the on-the-fly `lightmatter-icons.zip`) are
-  also directly reachable. Left as-is for now — display icons, lower
-  sensitivity. Gate them too if brand icons are considered restricted.
+- **Resolved (2026-07-08):** the `lightmatter-icons.zip` bundle now zips
+  `protected/icons/` instead of `assets/icons/`. Decision: individual icons
+  stay intentionally public — they're displayed and individually downloadable
+  from `index.html` (`assets/icons/*.svg`, unchanged) by design; only the
+  convenience all-at-once zip is gated. `protected/icons/` is a duplicate copy
+  kept in sync manually — when icons are added/changed, update both
+  directories.
 - ~~The `msenlm.github.io` static mirror has no PHP...~~ **Resolved (2026-07-08):**
   that mirror no longer exists (404, no matching GitHub user/repo) and the
   hostname-based gate bypass for it in `inference-sans-type-tool.html` has been

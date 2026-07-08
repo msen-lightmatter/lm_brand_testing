@@ -1,0 +1,44 @@
+<svg width="160" height="96" viewBox="0 0 160 96" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M102 24V26H104V24H102Z" fill="black"/>
+<path d="M100 26V28H102V26H100Z" fill="black"/>
+<path d="M98 28V30H100V28H98Z" fill="black"/>
+<path d="M96 30V32H98V30H96Z" fill="black"/>
+<path d="M94 32V34H96V32H94Z" fill="black"/>
+<path d="M92 34V36H94V34H92Z" fill="black"/>
+<path d="M90 36V38H92V36H90Z" fill="black"/>
+<path d="M88 38V40H90V38H88Z" fill="black"/>
+<path d="M86 40V42H88V40H86Z" fill="black"/>
+<path d="M84 42V44H86V42H84Z" fill="black"/>
+<path d="M82 44V46H84V44H82Z" fill="black"/>
+<path d="M80 46V48H82V46H80Z" fill="black"/>
+<path d="M78 48V50H80V48H78Z" fill="black"/>
+<path d="M76 50V52H78V50H76Z" fill="black"/>
+<path d="M74 52V54H76V52H74Z" fill="black"/>
+<path d="M72 54V56H74V54H72Z" fill="black"/>
+<path d="M70 56V58H72V56H70Z" fill="black"/>
+<path d="M68 58V60H70V58H68Z" fill="black"/>
+<path d="M66 60V62H68V60H66Z" fill="black"/>
+<path d="M64 62V64H66V62H64Z" fill="black"/>
+<path d="M62 64V66H64V64H62Z" fill="black"/>
+<path d="M60 66V68H62V66H60Z" fill="black"/>
+<path d="M58 68V70H60V68H58Z" fill="black"/>
+<path d="M56 70V72H58V70H56Z" fill="black"/>
+<path d="M16 72H18L18 24H16L16 72Z" fill="black"/>
+<path d="M46 72H48L48 24H46L46 72Z" fill="black"/>
+<path d="M18 24H46V22H18V24Z" fill="black"/>
+<path d="M50 33L92 33V31L50 31V33Z" fill="black"/>
+<path d="M100 33H110V31H100V33Z" fill="black"/>
+<path d="M92 41H110V39H92V41Z" fill="black"/>
+<path d="M84 49H110V47H84V49Z" fill="black"/>
+<path d="M76 57H110V55H76V57Z" fill="black"/>
+<path d="M50 49H76V47H50V49Z" fill="black"/>
+<path d="M50 57H68V55H50V57Z" fill="black"/>
+<path d="M50 65H60V63H50V65Z" fill="black"/>
+<path d="M50 41H84V39H50V41Z" fill="black"/>
+<path d="M68 65H110V63L68 63V65Z" fill="black"/>
+<path d="M18 74H46V72H18V74Z" fill="black"/>
+<path d="M112 72H114V24H112V72Z" fill="black"/>
+<path d="M142 72H144V24H142V72Z" fill="black"/>
+<path d="M114 24H142V22H114V24Z" fill="black"/>
+<path d="M114 74H142V72H114V74Z" fill="black"/>
+</svg>
