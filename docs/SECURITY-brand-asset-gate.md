@@ -4,8 +4,13 @@ _Last reviewed: 2026-07-08_
 
 This document records how access control works on this site, a confirmed bypass
 found during a security review, and the deployment facts you need to keep the
-gate effective. **It contains no code — the fix is in a separate PR plus a
-production nginx change (see below).**
+gate effective.
+
+**Status: code fix applied (2026-07-08), nginx step NOT yet deployed.** Gated
+bundles have been moved to `protected/` and `download.php` repointed there —
+see Remediation below. This site deploys via FTP, not this repo/CI, so the
+`protected/` move only takes effect once these files are uploaded, and **the
+nginx rule cannot be applied via FTP at all** — see step 2.
 
 ## How the gate is supposed to work
 
@@ -53,11 +58,22 @@ PII.)
 
 ## Remediation
 
-1. **Code (separate PR):** relocate the gated bundles to `protected/` and point
-   `download.php` at that directory so `download.php` is the only path to them.
-2. **Production nginx (manual, required):** block direct HTTP access to the
-   relocated directory. Add to the `server { … }` block serving `/brand` and
-   reload (`nginx -t && systemctl reload nginx`):
+1. **Code — done (2026-07-08).** Gated bundles relocated to `protected/`
+   (`protected/logos/`, `protected/fonts/`, `protected/documents/`) and
+   `download.php`'s allowlist repointed there, so `download.php` is the only
+   in-app path to them. `index.html`'s brand-guidelines PDF link was also
+   changed from a direct file link to `download.php?f=lm-brand-guidelines.pdf&mode=view`,
+   so it now requires the password gate like the rest of the collateral.
+   `protected/.htaccess` (`Require all denied`) was added as defense-in-depth
+   for any Apache host, though it does nothing on the current nginx prod host.
+   **This only takes effect once the updated files are uploaded via FTP** —
+   there is no CI/CD deploy from this repo.
+2. **Production nginx — NOT yet deployed, required, and FTP cannot do this.**
+   The rule lives in `deploy/nginx-brand.conf` in this repo, but that file must
+   be manually copied into the actual nginx config path on the server (e.g.
+   `/etc/nginx/sites-available/...`) by someone with shell/root access, then
+   applied with `nginx -t && systemctl reload nginx`. Add to the `server { … }`
+   block serving `/brand`:
 
    ```nginx
    location ^~ /brand/protected/ {
@@ -69,7 +85,8 @@ PII.)
    deny rule does not break gated downloads.
 
 **The gate is not fixed until step 2 is deployed.** Relocation alone just moves
-the exposed path.
+the exposed path — until the nginx rule is live, `/brand/protected/...` is just
+as directly downloadable as `/brand/assets/...` was.
 
 ### Verify after deploy
 

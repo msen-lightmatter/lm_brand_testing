@@ -1,0 +1,4 @@
+# Defense-in-depth for Apache hosts. NOTE: production runs nginx, which does NOT
+# read .htaccess — the authoritative rule is in deploy/nginx-brand.conf.
+# These files must only ever be served via ../download.php (session-gated).
+Require all denied

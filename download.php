@@ -13,18 +13,22 @@ if (empty($_SESSION['brand_authed'])) {
     exit;
 }
 
+// Gated assets live under protected/ — a directory the web server MUST NOT serve
+// directly (see the nginx `location` rule in deploy/nginx-brand.conf).
+// download.php is the ONLY path to these files; readfile() reads them from the
+// local filesystem, which is unaffected by the web-server deny rule.
 $allowed = [
-    'lm-logomark.zip'                   => 'assets/logos/lm-logomark.zip',
-    'lm-wordmark.zip'                   => 'assets/logos/lm-wordmark.zip',
-    'lm-product-logos.zip'              => 'assets/logos/lm-product-logos.zip',
-    'inference-sans.zip'                => 'assets/fonts/inference-sans.zip',
-    'object-sans.zip'                   => 'assets/fonts/object-sans.zip',
-    'lm-brand-guidelines.pdf'           => 'assets/documents/lm-brand-guidelines.pdf',
-    'lm-google-slides-style-guide.pptx' => 'assets/documents/lm-google-slides-style-guide.pptx',
-    'lm-brand-skill.md'                 => 'assets/documents/lm-brand-skill.md',
-    'lightmatter-colors.ase'            => 'assets/documents/lightmatter-colors.ase',
-    'lightmatter-theme.thmx'            => 'assets/documents/lightmatter-theme.thmx',
-    'lightmatter-color-reference.html'  => 'assets/documents/lightmatter-color-reference.html',
+    'lm-logomark.zip'                   => 'protected/logos/lm-logomark.zip',
+    'lm-wordmark.zip'                   => 'protected/logos/lm-wordmark.zip',
+    'lm-product-logos.zip'              => 'protected/logos/lm-product-logos.zip',
+    'inference-sans.zip'                => 'protected/fonts/inference-sans.zip',
+    'object-sans.zip'                   => 'protected/fonts/object-sans.zip',
+    'lm-brand-guidelines.pdf'           => 'protected/documents/lm-brand-guidelines.pdf',
+    'lm-google-slides-style-guide.pptx' => 'protected/documents/lm-google-slides-style-guide.pptx',
+    'lm-brand-skill.md'                 => 'protected/documents/lm-brand-skill.md',
+    'lightmatter-colors.ase'            => 'protected/documents/lightmatter-colors.ase',
+    'lightmatter-theme.thmx'            => 'protected/documents/lightmatter-theme.thmx',
+    'lightmatter-color-reference.html'  => 'protected/documents/lightmatter-color-reference.html',
 ];
 
 $f = $_GET['f'] ?? '';
