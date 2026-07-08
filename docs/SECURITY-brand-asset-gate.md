@@ -6,11 +6,16 @@ This document records how access control works on this site, a confirmed bypass
 found during a security review, and the deployment facts you need to keep the
 gate effective.
 
-**Status: code fix applied (2026-07-08), nginx step NOT yet deployed.** Gated
-bundles have been moved to `protected/` and `download.php` repointed there —
-see Remediation below. This site deploys via FTP, not this repo/CI, so the
-`protected/` move only takes effect once these files are uploaded, and **the
-nginx rule cannot be applied via FTP at all** — see step 2.
+**Status: code fix live via FTP (2026-07-08), nginx step NOT yet deployed —
+bypass has moved, not closed.** Gated bundles have been moved to `protected/`
+and `download.php` repointed there, and this has been synced to production —
+the old `assets/logos/`, `assets/fonts/*.zip`, `assets/documents/*` paths now
+404. But **the bypass is not fixed**, only relocated: `protected/` is not yet
+blocked at the web-server level (see Remediation step 2 — `deploy/nginx-brand.conf`
+must still be applied to nginx, tracked in
+[issue #3](https://github.com/lightmatter-ai/tml2jas3w/issues/3), assigned to
+@akatske-lightmatter), so the same files are directly downloadable at their
+new path with no auth. See live verification below.
 
 ## How the gate is supposed to work
 
@@ -24,12 +29,31 @@ nginx rule cannot be applied via FTP at all** — see step 2.
 
 ## Confirmed finding — gate bypass (High)
 
-The gated assets physically live **under the web root** (`assets/logos/`,
-`assets/fonts/*.zip`, `assets/documents/*`), so the web server hands them out as
-ordinary static files with **no session check**, bypassing `download.php`
-entirely.
+The gated assets physically live **under the web root**, so the web server
+hands them out as ordinary static files with **no session check**, bypassing
+`download.php` entirely. This was true at `assets/logos/`, `assets/fonts/*.zip`,
+`assets/documents/*` originally, and is still true today at their relocated
+path, `protected/`, because nginx has no rule blocking it yet (see Remediation
+step 2 / [issue #3](https://github.com/lightmatter-ai/tml2jas3w/issues/3)).
 
-Verified live at review time (unauthenticated, no session cookie):
+**Live, current (2026-07-08, after the FTP sync):**
+
+| Request | Result |
+| --- | --- |
+| `GET /brand/download.php?f=lm-product-logos.zip` (the gate) | **403** — correctly denied |
+| `GET /brand/assets/logos/lm-product-logos.zip` (old path) | **404** — gone, relocated |
+| `GET /brand/assets/documents/lm-brand-guidelines.pdf` (old path) | **404** — gone, relocated |
+| `GET /brand/assets/documents/lm-brand-skill.md` (old path) | **404** — gone, relocated |
+| `GET /brand/protected/logos/lm-product-logos.zip` (new path) | **200** — still served, no auth |
+
+Impact: all "For internal use only" brand collateral is still publicly
+downloadable by anyone who knows or guesses the (new) path. (Data is brand
+assets, not credentials or PII.) **This will remain true until the nginx rule
+in issue #3 is deployed** — do not consider this closed based on the code
+change alone.
+
+<details>
+<summary>Original finding, at review time (now-relocated paths, for history)</summary>
 
 | Request | Result |
 | --- | --- |
@@ -38,9 +62,7 @@ Verified live at review time (unauthenticated, no session cookie):
 | `GET /brand/assets/documents/lm-brand-guidelines.pdf` | **200** — served, no auth |
 | `GET /brand/assets/documents/lm-brand-skill.md` | **200** — served, no auth |
 
-Impact: all "For internal use only" brand collateral is publicly downloadable by
-anyone who knows or guesses the path. (Data is brand assets, not credentials or
-PII.)
+</details>
 
 ## Deployment facts that matter (easy to get wrong)
 
