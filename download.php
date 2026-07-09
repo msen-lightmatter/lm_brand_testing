@@ -1,6 +1,7 @@
 <?php
+ini_set('session.gc_maxlifetime', 86400); // 24 hours
 session_set_cookie_params([
-    'lifetime' => 0,
+    'lifetime' => 86400, // 24 hours
     'path'     => '/',
     'secure'   => true,
     'httponly' => true,
